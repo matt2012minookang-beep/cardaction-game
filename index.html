@@ -86,7 +86,7 @@ megaHammer:{name:'업글 망치',grade:'신화',desc:'망치를 3번 휘두릅�
 megaGuard:{name:'업글 방어',grade:'신화',desc:'데미지가 있는 공격 카드 3턴 동안 50% 방어합니다. 독/출혈 지속 피해는 제외됩니다.',base:0,type:'megaGuard',guard:true,cd:9},
 megaSlam:{name:'업글 내려찍기',grade:'신화',desc:'3번 내려찍습니다.',base:52,type:'megaSlam',hits:3,cd:9},
 revive:{name:'부활',grade:'전설',desc:'죽을 시 자동 발동해 풀피로 부활합니다. 평상시에는 사용할 수 없습니다.',base:0,type:'revive',revive:true,cd:12},
-domain:{name:'영역전개',grade:'전설',desc:'효과를 전부 소모한 뒤 5턴 쿨타임입니다. 사용 후 카드를 5번 사용할 때까지 자신의 영역을 전개합니다. 자신의 영역에서는 입는 피해가 30%감소하며 입히는 피해가 30%증가합니다. 적이 영역전개중일시 상쇄합니다.',base:0,type:'domain',domain:true,cd:5},
+domain:{name:'영역전개',grade:'전설',desc:'효과를 전부 소모한 뒤 8턴 쿨타임입니다. 데미지를 주거나 받을 때마다 영역 횟수가 1회 줄어듭니다. 자신의 영역에서는 입는 피해가 30%감소하며 입히는 피해가 30%증가합니다. 적이 영역전개중일시 상쇄합니다.',base:0,type:'domain',domain:true,cd:8},
 grenade:{name:'강철수류탄',grade:'전설',desc:'엄청난 위력의 수류탄을 던져 폭발시킵니다.',base:92,type:'grenade',cd:8},
 train:{name:'기차',grade:'전설',desc:'기차로 적을 칩니다!',base:98,type:'train',cd:10},
 diamondArmor:{name:'다이아몬드 갑옷',grade:'전설',desc:'데미지 있는 공격 카드 3턴 동안 입는 피해가 75% 감소합니다. 효과를 전부 소모한 뒤 5턴 쿨타임입니다.',base:0,type:'diamondArmor',armor:true,cd:5},
@@ -96,7 +96,7 @@ vampire:{name:'흡혈',grade:'전설',desc:'상대를 흡혈합니다! 만약 �
 spiritBomb:{name:'원기옥',grade:'전설',desc:'원기옥을 모아 쏩니다.',base:125,type:'spiritBomb',cd:12}
 };
 const ORDER=['hit','sword','bow','axe','dagger','fire','wind','ice','bleed','poison','spike','guard','slam','clone','kick','smash','hammer','mace','armor','beam','potionHeal','potionDamage','potionPower','potionWeak','summon','dark','reflect','anvil','thornDrop','megaBeam','megaHit','megaHammer','megaGuard','megaSlam','revive','domain','grenade','train','diamondArmor','prismKnight','prismCrystal','vampire','spiritBomb'],STORAGE='cardActionBattleSave_v4_fullcards_oldui';let save={players:{},lastNick:''},nick='',selectingSlot=null,battle=null,locked=false;const $=id=>document.getElementById(id);const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-function defaultPlayer(){return{owned:{hit:1},deck:['hit',null,null,null,null,null],tutorial:true,wins:0,coins:0,trophies:0,claimedRewards:{}}}function loadAll(){try{const s=JSON.parse(localStorage.getItem(STORAGE));return s&&s.players?s:{players:{},lastNick:''}}catch(e){return{players:{},lastNick:''}}}function saveAll(){localStorage.setItem(STORAGE,JSON.stringify(save))}function me(){return save.players[nick]}function levelOf(cnt){cnt=Number(cnt)||0;return cnt<=0?0:Math.floor(Math.log2(cnt))+1}function cardLevel(id,owner=me()){return Math.max(1,levelOf((owner.owned||{})[id]||0))}function gradeClass(g){return g==='전설'?'g-legend':g==='신화'?'g-myth':g==='영웅'?'g-hero':g==='초희귀'?'g-super':g==='희귀'?'g-rare':g==='일반'?'g-normal':'g-basic'}function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1400)}function screen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+function defaultPlayer(){return{owned:{hit:1},deck:['hit',null,null,null,null,null],tutorial:true,wins:0,coins:0,trophies:0,claimedRewards:{}}}function loadAll(){try{const s=JSON.parse(localStorage.getItem(STORAGE));return s&&s.players?s:{players:{},lastNick:''}}catch(e){return{players:{},lastNick:''}}}function saveAll(){localStorage.setItem(STORAGE,JSON.stringify(save))}function me(){return save.players[nick]}function levelOf(cnt){cnt=Number(cnt)||0;return cnt<=0?0:Math.min(10,Math.floor(Math.log2(cnt))+1)}function cardLevel(id,owner=me()){return Math.max(1,Math.min(10,levelOf((owner.owned||{})[id]||0)))}function gradeClass(g){return g==='전설'?'g-legend':g==='신화'?'g-myth':g==='영웅'?'g-hero':g==='초희귀'?'g-super':g==='희귀'?'g-rare':g==='일반'?'g-normal':'g-basic'}function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1400)}function screen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
 let pct=0;const timer=setInterval(()=>{pct+=Math.ceil(Math.random()*13);if(pct>=100){pct=100;clearInterval(timer);setTimeout(()=>screen('loginScreen'),250)}$('loadFill').style.width=pct+'%';$('loadPct').textContent=pct+'%'},70);
 
 function ensureProgressFields(){const p=me();if(!p)return;p.coins=Number(p.coins)||0;p.trophies=Number(p.trophies)||0;p.claimedRewards=p.claimedRewards||{}}
@@ -104,9 +104,9 @@ function trophyValue(id){const g=CARDS[id]?.grade;return g==='전설'?7:g==='신
 function deckTrophyGain(deck){return (deck||[]).filter(id=>id&&CARDS[id]).reduce((s,id)=>s+trophyValue(id),0)}
 function awardTrophiesForWin(){const p=me();if(!p)return 0;ensureProgressFields();const gain=deckTrophyGain(p.deck);p.trophies=Math.min(FINAL_TROPHY,(Number(p.trophies)||0)+gain);return gain}
 const ROMANS=['','Ⅰ','Ⅱ','Ⅲ'];
-const RANK_BASES=['브론즈','실버','골드','플래티넘','에메랄드','다이아','레드다이아','전설','마스터','그랜드마스터','프로','챌린저','플레어','레디언트','불멸','지구신','태양신','은하신','우주신','절대신'];
-const RANK_SYMBOLS=['♜','◆','★','⬟','✦','💎','♦','⚜','♛','✹','✧','⚡','🔥','☀','♾','🌍','☉','✺','✵','👑'];
-const RANK_COLORS=[['#8a4f2b','#d59257','#4a2211'],['#8795a7','#e9f2ff','#4a5362'],['#e8a81f','#fff07a','#8b4b00'],['#55a7ff','#d8f0ff','#154a8a'],['#20d17b','#b9ffd6','#036739'],['#43d6ff','#dff9ff','#0a6192'],['#ff345a','#ffbac6','#76051b'],['#a15aff','#ead8ff','#421178'],['#ff7ce2','#ffe1fb','#7b096a'],['#ffcf55','#fff5b7','#965a00'],['#ff8c39','#ffe0b8','#8c3100'],['#5f7cff','#dce4ff','#1b2e8e'],['#ff4a22','#ffd1c6','#8c1600'],['#f7ec53','#fffbd0','#8b7d00'],['#8b5cff','#f0e8ff','#32106f'],['#34c8ff','#d5f7ff','#025577'],['#ffb331','#fff3bd','#885000'],['#b96dff','#f6e7ff','#4b087c'],['#2248ff','#cfd8ff','#071a87'],['#ffffff','#fff6a8','#7b5b00']];
+const RANK_BASES=['브론즈','실버','골드','플래티넘','에메랄드','다이아','레드다이아','신화','전설','마스터','그랜드마스터','프로','챌린저','플레어','레디언트','불멸','지구신','태양신','은하신','우주신','절대신'];
+const RANK_SYMBOLS=['♜','◆','★','⬟','✦','💎','♦','✷','⚜','♛','✹','✧','⚡','🔥','☀','♾','🌍','☉','✺','✵','👑'];
+const RANK_COLORS=[['#8a4f2b','#d59257','#4a2211'],['#8795a7','#e9f2ff','#4a5362'],['#e8a81f','#fff07a','#8b4b00'],['#55a7ff','#d8f0ff','#154a8a'],['#20d17b','#b9ffd6','#036739'],['#43d6ff','#dff9ff','#0a6192'],['#ff345a','#ffbac6','#76051b'],['#b100ff','#f2c7ff','#3b0059'],['#a15aff','#ead8ff','#421178'],['#ff7ce2','#ffe1fb','#7b096a'],['#ffcf55','#fff5b7','#965a00'],['#ff8c39','#ffe0b8','#8c3100'],['#5f7cff','#dce4ff','#1b2e8e'],['#ff4a22','#ffd1c6','#8c1600'],['#f7ec53','#fffbd0','#8b7d00'],['#8b5cff','#f0e8ff','#32106f'],['#34c8ff','#d5f7ff','#025577'],['#ffb331','#fff3bd','#885000'],['#b96dff','#f6e7ff','#4b087c'],['#2248ff','#cfd8ff','#071a87'],['#ffffff','#fff6a8','#7b5b00']];
 function romanNumeral(num){num=Math.max(1,Math.floor(Number(num)||1));const vals=[[1000,'Ⅿ'],[900,'ⅭⅯ'],[500,'Ⅾ'],[400,'ⅭⅮ'],[100,'Ⅽ'],[90,'ⅩⅭ'],[50,'Ⅼ'],[40,'ⅩⅬ'],[10,'Ⅹ'],[9,'Ⅸ'],[5,'Ⅴ'],[4,'Ⅳ'],[1,'Ⅰ']];let out='';for(const [v,s] of vals){while(num>=v){out+=s;num-=v}}return out}
 function rankSchedule(){const arr=[];arr.push({target:50,name:'브론즈',level:1,index:0});arr.push({target:100,name:'브론즈',level:2,index:0});arr.push({target:200,name:'브론즈',level:3,index:0});let t=200;for(let i=1;i<RANK_BASES.length;i++){for(let lv=1;lv<=3;lv++){t+=200;arr.push({target:t,name:RANK_BASES[i],level:lv,index:i})}}for(let another=1;another<=500;another++){t+=200;arr.push({target:t,name:'어나더레벨',level:another,index:RANK_BASES.length+(another-1)})}return arr}
 const RANKS=rankSchedule();
@@ -170,7 +170,7 @@ function deckPower(deck,owner){return (deck||[]).filter(id=>CARDS[id]).reduce((s
 function maxDeckRank(deck){let r=0;(deck||[]).forEach(id=>{if(CARDS[id])r=Math.max(r,GRADE_RANK[CARDS[id].grade]||0)});return r}
 function countReal(deck){return (deck||[]).filter(id=>id&&CARDS[id]).length}
 function enemyCountFor(playerCount,pPower){if(playerCount<=1)return 1;if(playerCount===2)return Math.random()<.75?2:1;if(playerCount===3)return Math.random()<.25?2:3;let add=pPower>115&&Math.random()<.18?1:0;let sub=Math.random()<.20?1:0;return clamp(playerCount+add-sub,1,6)}
-function levelCountFromLv(lv){return Math.max(1,Math.pow(2,Math.max(0,lv-1)))}
+function levelCountFromLv(lv){lv=clamp(Math.floor(Number(lv)||1),1,10);return Math.max(1,Math.pow(2,Math.max(0,lv-1)))}
 function buildEnemy(){
   const p=me();
   if(p.tutorial)return{name:'튜토리얼 적',owned:{hit:1},deck:['hit',null,null,null,null,null]};
@@ -252,10 +252,10 @@ function applyDots(side){
 function applyDotEffect(defender,c,lv){if(!c.dot)return;const dotDmg=scaledDotDamage(c.dot.dmg,lv);defender.dot=defender.dot||[];const old=defender.dot.find(d=>d.label===c.dot.label);if(old){old.turns=c.dot.turns;old.dmg=Math.max(old.dmg,dotDmg)}else defender.dot.push({dmg:dotDmg,turns:c.dot.turns,label:c.dot.label})}function guardRateFor(id,owner){const lv=cardLevel(id,owner);return clamp(.25+(lv-1)*.01,.25,.45)}function mythGuardRateFor(lv){return clamp(.50+lvStep(lv)*.015,.50,.75)}
 function selectTarget(defSide){return new Promise(res=>{const def=battle[defSide],list=$('targetList');list.innerHTML='';for(let i=0;i<def.illusions.count;i++){const b=document.createElement('button');b.className='targetBtn';b.textContent=`대상 ${i+1}`;b.onclick=()=>{$('targetModal').classList.remove('active');res(i)};list.appendChild(b)}$('targetModal').classList.add('active')})}function chooseBody(count){return new Promise(res=>{const list=$('bodyList');list.innerHTML='';for(let i=0;i<count;i++){const b=document.createElement('button');b.className='targetBtn';b.textContent=`위치 ${i+1}`;b.onclick=()=>{$('bodyModal').classList.remove('active');res(i)};list.appendChild(b)}$('bodyModal').classList.add('active')})}
 async function useCard(actor,slot){locked=true;const attacker=battle[actor],id=attacker.deck[slot],defenderSide=actor==='player'?'enemy':'player',defender=battle[defenderSide],c=CARDS[id];if(!id||!c){locked=false;return}if((attacker.cool[slot]||0)>0){locked=false;return}if(c.type==='domain'&&((battle.domain&&battle.domain.side===actor)||(attacker.domainCooldown>0))){if(actor==='enemy'){locked=false;finishTurn(actor,{name:'대기'});return}toast(battle.domain&&battle.domain.side===actor?'영역전개 효과가 아직 남아있습니다.':`영역전개 쿨타임 ${attacker.domainCooldown}턴 남았습니다.`);locked=false;return}if(c.type==='diamondArmor'&&attacker.guard&&attacker.guard.diamond){if(actor==='enemy'){locked=false;finishTurn(actor,{name:'대기'});return}toast('다이아 갑옷 효과가 아직 남아있습니다.');locked=false;return}const delayedCooldown=(c.type==='domain'||c.type==='diamondArmor');if(!delayedCooldown)attacker.cool[slot]=c.cd||1;applyDots(actor);if(attacker.summon){await summonStrike(actor,defenderSide,8+Math.round(attacker.max*.025))}updateBattle();if(checkEnd())return;msg(`${actor==='player'?'아군':'적'}: ${c.name}!`);await sleep(220);const lv=cardLevel(id,attacker.owner);const pierceIllusion=['megaBeam','megaSlam'].includes(c.type);const offensive=(c.base||c.dot||c.percentDamage)&&!c.heal&&!c.guard&&!c.armor&&!c.power&&!c.weak&&!c.summon&&!c.reflect&&!c.illusion;if(defender.illusions&&offensive&&!c.percentDamage&&!pierceIllusion){let target=actor==='player'?await selectTarget(defenderSide):Math.floor(Math.random()*defender.illusions.count);if(target!==defender.illusions.real){defender.illusions.count--;msg(`${actor==='player'?'가짜 분신을 제거했습니다.':'적이 가짜 분신을 공격했습니다.'}`);motion(actor,c.type,0,1,0);if(defender.illusions.count<=1)defender.illusions=null;updateBattle();await sleep(650);finishTurn(actor,c);return}else{defender.illusions=null;msg('본체를 맞혔습니다! 분신 해제.');updateBattle();await sleep(280)}}
-if(c.guard){const rate=c.type==='megaGuard'?mythGuardRateFor(lv):guardRateFor(id,attacker.owner);attacker.guard=c.type==='megaGuard'?{rate,turns:3,myth:true}:{rate};motion(actor,c.type==='megaGuard'?'megaGuard':'guard',0,1,0);guardFx(actor,rate,c.type==='megaGuard'?'업글 방어':'방어');await sleep(600);finishTurn(actor,c);return}if(c.armor){if(c.type==='diamondArmor'){const rate=clamp(.75+lvStep(lv)*.005,.75,.90);attacker.guard={rate,turns:3,myth:true,diamond:true,coolSlot:slot,coolAfter:5};attacker.cool[slot]=0;motion(actor,'armor',0,1,0);guardFx(actor,rate,'다이아 갑옷');await sleep(650);finishTurn(actor,c);return}else{const rate=armorRateFor(lv);attacker.armor={turns:5,rate};motion(actor,'armor',0,1,0);guardFx(actor,rate,'갑옷');await sleep(600);finishTurn(actor,c);return}}if(c.heal){await potionVerticalFx(actor,'#53ff92');const heal=Math.min(300,Math.round((attacker.max-attacker.hp)*healRateFor(lv)));attacker.hp=clamp(attacker.hp+heal,0,attacker.max);healFx(actor,heal);if(heal<attacker.max*.20){const backfire=Math.max(1,Math.round(attacker.max*potionBackfireRateFor(lv)));await potionArcFx(actor,defenderSide,'#7cffdd');await doDamage(actor,defenderSide,backfire,'potionHeal',false,false)}updateBattle();await sleep(300);if(checkEnd())return;finishTurn(actor,c);return}if(c.percentDamage){defender.illusions=null;let dmg=clamp(Math.round(defender.hp*potionDamageRateFor(lv)),50,200);await potionArcFx(actor,defenderSide,'#ffb067');await doDamage(actor,defenderSide,dmg,c.type,false,true);await sleep(260);if(checkEnd())return;finishTurn(actor,c);return}if(c.power){await potionVerticalFx(actor,'#ffe26b');attacker.power=powerRateFor(lv);defender.weak=false;await sleep(150);finishTurn(actor,c);return}if(c.weak){await potionArcFx(actor,defenderSide,'#8e77ff');defender.weak=weakRateFor(lv);defender.power=false;await sleep(150);finishTurn(actor,c);return}if(c.summon){attacker.summon={hp:summonHpFor(lv)};motion(actor,'summon',0,1,0);updateBattle();await sleep(650);finishTurn(actor,c);return}if(c.reflect){attacker.reflect=reflectRateFor(lv);showReflectShield(actor,900);motion(actor,'reflect',0,1,0);await sleep(650);finishTurn(actor,c);return}if(c.illusion){const real=actor==='player'?await chooseBody(c.illusion):Math.floor(Math.random()*c.illusion);attacker.illusions={count:c.illusion,real};if(c.type==='dark'){await darkSceneFx()}else{motion(actor,c.type,0,1,0)}updateBattle();await sleep(250);if(c.type==='clone'){await doDamage(actor,defenderSide,cloneDamageFor(lv),'clone');motion(actor,'clone',0,1,cloneDamageFor(lv));if(checkEnd())return}await sleep(650);finishTurn(actor,c);return}
+if(c.guard){const rate=c.type==='megaGuard'?mythGuardRateFor(lv):guardRateFor(id,attacker.owner);attacker.guard=c.type==='megaGuard'?{rate,turns:3,myth:true}:{rate};motion(actor,c.type==='megaGuard'?'megaGuard':'guard',0,1,0);guardFx(actor,rate,c.type==='megaGuard'?'업글 방어':'방어');await sleep(600);finishTurn(actor,c);return}if(c.armor){if(c.type==='diamondArmor'){const rate=clamp(.75+lvStep(lv)*.005,.75,.90);attacker.guard={rate,turns:3,myth:true,diamond:true,coolSlot:slot,coolAfter:5};attacker.cool[slot]=0;motion(actor,'armor',0,1,0);guardFx(actor,rate,'다이아 갑옷');await sleep(650);finishTurn(actor,c);return}else{const rate=armorRateFor(lv);attacker.armor={turns:2,rate};motion(actor,'armor',0,1,0);guardFx(actor,rate,'갑옷');await sleep(600);finishTurn(actor,c);return}}if(c.heal){await potionVerticalFx(actor,'#53ff92');const heal=Math.min(300,Math.round((attacker.max-attacker.hp)*healRateFor(lv)));attacker.hp=clamp(attacker.hp+heal,0,attacker.max);healFx(actor,heal);if(heal<attacker.max*.20){const backfire=Math.max(1,Math.round(attacker.max*potionBackfireRateFor(lv)));await potionArcFx(actor,defenderSide,'#7cffdd');await doDamage(actor,defenderSide,backfire,'potionHeal',false,false)}updateBattle();await sleep(300);if(checkEnd())return;finishTurn(actor,c);return}if(c.percentDamage){defender.illusions=null;let dmg=clamp(Math.round(defender.hp*potionDamageRateFor(lv)),50,200);await potionArcFx(actor,defenderSide,'#ffb067');await doDamage(actor,defenderSide,dmg,c.type,false,true);await sleep(260);if(checkEnd())return;finishTurn(actor,c);return}if(c.power){await potionVerticalFx(actor,'#ffe26b');attacker.power=powerRateFor(lv);defender.weak=false;await sleep(150);finishTurn(actor,c);return}if(c.weak){await potionArcFx(actor,defenderSide,'#8e77ff');defender.weak=weakRateFor(lv);defender.power=false;await sleep(150);finishTurn(actor,c);return}if(c.summon){attacker.summon={hp:summonHpFor(lv)};motion(actor,'summon',0,1,0);updateBattle();await sleep(650);finishTurn(actor,c);return}if(c.reflect){attacker.reflect=reflectRateFor(lv);showReflectShield(actor,900);motion(actor,'reflect',0,1,0);await sleep(650);finishTurn(actor,c);return}if(c.illusion){const real=actor==='player'?await chooseBody(c.illusion):Math.floor(Math.random()*c.illusion);attacker.illusions={count:c.illusion,real};if(c.type==='dark'){await darkSceneFx()}else{motion(actor,c.type,0,1,0)}updateBattle();await sleep(250);if(c.type==='clone'){await doDamage(actor,defenderSide,cloneDamageFor(lv),'clone');motion(actor,'clone',0,1,cloneDamageFor(lv));if(checkEnd())return}await sleep(650);finishTurn(actor,c);return}
 
 if(c.type==='revive'){toast(attacker.reviveUsed?'부활은 이미 사용했습니다.':'부활은 죽을 때 자동 발동합니다.');locked=false;return}
-if(c.type==='domain'){if(battle.domain&&battle.domain.side!==actor){const oldDomain=battle.domain;if(Number.isInteger(oldDomain.coolSlot)&&battle[oldDomain.side]){battle[oldDomain.side].domainCooldown=5;battle[oldDomain.side].domainCooldownSlot=oldDomain.coolSlot;battle[oldDomain.side].cool[oldDomain.coolSlot]=Math.max(battle[oldDomain.side].cool[oldDomain.coolSlot]||0,5)}}battle.domain={side:actor,turns:5,coolSlot:slot,coolAfter:5};attacker.domainCooldown=0;attacker.domainCooldownSlot=slot;attacker.cool[slot]=0;await domainOpenFx(actor);updateBattle();await sleep(350);finishTurn(actor,c);return}
+if(c.type==='domain'){if(battle.domain&&battle.domain.side!==actor){const oldDomain=battle.domain;if(Number.isInteger(oldDomain.coolSlot)&&battle[oldDomain.side]){battle[oldDomain.side].domainCooldown=8;battle[oldDomain.side].domainCooldownSlot=oldDomain.coolSlot;battle[oldDomain.side].cool[oldDomain.coolSlot]=Math.max(battle[oldDomain.side].cool[oldDomain.coolSlot]||0,8)}battle.domain=null;attacker.domainCooldown=8;attacker.domainCooldownSlot=slot;attacker.cool[slot]=8;msg('영역전개를 상쇄했습니다. 양쪽 영역이 사라집니다.');await domainOpenFx(actor);updateBattle();await sleep(350);finishTurn(actor,c);return}battle.domain={side:actor,turns:5,coolSlot:slot,coolAfter:8};attacker.domainCooldown=0;attacker.domainCooldownSlot=slot;attacker.cool[slot]=0;await domainOpenFx(actor);updateBattle();await sleep(350);finishTurn(actor,c);return}
 if(c.type==='diamondArmor'){const rate=clamp(.75+lvStep(lv)*.005,.75,.90);attacker.guard={rate,turns:3,myth:true,diamond:true,coolSlot:slot,coolAfter:5};attacker.cool[slot]=0;motion(actor,'armor',0,1,0);guardFx(actor,rate,'다이아 갑옷');await sleep(650);finishTurn(actor,c);return}
 if(c.type==='grenade'){let dmg=scaledDamage(c.base,lv,c.type);if(attacker.power)dmg*=1+attacker.power;if(attacker.weak)dmg*=1-attacker.weak;dmg=Math.max(1,Math.round(dmg));await grenadeAttack(actor,defenderSide,dmg);if(checkEnd())return;finishTurn(actor,c);return}
 if(c.type==='train'){let dmg=scaledDamage(c.base,lv,c.type);if(attacker.power)dmg*=1+attacker.power;if(attacker.weak)dmg*=1-attacker.weak;dmg=Math.max(1,Math.round(dmg));await trainAttack(actor,defenderSide,dmg);if(checkEnd())return;finishTurn(actor,c);return}
@@ -646,6 +646,19 @@ async function beamAttack(actor,defenderSide,dmg){
   updateBattle();
   await sleep(250);
 }
+function consumeDomainOnDamage(){
+  if(!battle||!battle.domain)return;
+  const d=battle.domain;
+  d.turns=Math.max(0,(Number(d.turns)||0)-1);
+  if(d.turns<=0){
+    if(Number.isInteger(d.coolSlot)&&battle[d.side]){
+      battle[d.side].domainCooldown=d.coolAfter||8;
+      battle[d.side].domainCooldownSlot=d.coolSlot;
+      battle[d.side].cool[d.coolSlot]=Math.max(battle[d.side].cool[d.coolSlot]||0,d.coolAfter||8);
+    }
+    battle.domain=null;
+  }
+}
 async function doDamage(actor,defenderSide,dmg,type,fromSummon=false,percent=false){
   const defender=battle[defenderSide],attacker=battle[actor];
   let real=Math.max(1,Math.round(dmg));
@@ -654,13 +667,14 @@ async function doDamage(actor,defenderSide,dmg,type,fromSummon=false,percent=fal
     defender.summon.hp-=real;
     summonDamageFx(defenderSide,real,'소환');
     if(defender.summon.hp<=0){defender.summon=null;fxAt(defenderSide,'bigFx','💥')}
+    if(type!=='bleed'&&type!=='poison')consumeDomainOnDamage();
     updateBattle();
     return;
   }
   if(defender.guard&&type!=='bleed'&&type!=='poison'){real=Math.max(1,Math.round(real*(1-(defender.guard.rate||.25))));guardFx(defenderSide,defender.guard.rate,defender.guard.diamond?'다이아 갑옷':defender.guard.myth?'업글 방어':'방어')}
   if(defender.armor&&defender.armor.turns>0){real=Math.max(1,Math.round(real*(1-(defender.armor.rate||.30))));guardFx(defenderSide,defender.armor.rate||.30,defender.armor.diamond?'다이아 갑옷':'갑옷')}
   if(defender.reflect&&!fromSummon){const rr=typeof defender.reflect==='number'?defender.reflect:.80;const back=Math.round(real*rr);real=Math.max(1,Math.round(real*(1-rr)));await reflectReturnFx(defenderSide,actor);attacker.hp-=back;damageFx(actor,back,'↩');defender.reflect=false}
-  defender.hp-=real;damageFx(defenderSide,real,type==='bleed'?'🩸':type==='poison'?'☠️':'');if(defender.hp<=0&&defender.revive){defender.revive=false;defender.reviveUsed=true;await phoenixRevive(defenderSide)}
+  defender.hp-=real;damageFx(defenderSide,real,type==='bleed'?'🩸':type==='poison'?'☠️':'');if(type!=='bleed'&&type!=='poison'&&real>0)consumeDomainOnDamage();if(defender.hp<=0&&defender.revive){defender.revive=false;defender.reviveUsed=true;await phoenixRevive(defenderSide)}
 }
 function reduceCooldown(side){const u=battle[side];u.cool=u.cool.map(v=>Math.max(0,(Number(v)||0)-1));if(u.domainCooldown>0){u.domainCooldown=Math.max(0,(Number(u.domainCooldown)||0)-1);if(u.domainCooldown===0&&Number.isInteger(u.domainCooldownSlot)&&u.cool[u.domainCooldownSlot]===0)u.domainCooldownSlot=null}}
 function countsForMegaGuard(c){
@@ -704,17 +718,7 @@ function finishTurn(actor,c){
       battle[battle.turn].armor=null;
     }
   }
-  if(battle.domain){
-    const domainCardUsed=actor===battle.domain.side && c && c.name!=='대기' && c.type!=='domain';
-    if(domainCardUsed){
-      battle.domain.turns=Math.max(0,(battle.domain.turns||0)-1);
-      if(battle.domain.turns<=0){
-        const d=battle.domain;
-        if(Number.isInteger(d.coolSlot)&&battle[d.side]){battle[d.side].domainCooldown=d.coolAfter||5;battle[d.side].domainCooldownSlot=d.coolSlot;battle[d.side].cool[d.coolSlot]=Math.max(battle[d.side].cool[d.coolSlot]||0,d.coolAfter||5)}
-        battle.domain=null;
-      }
-    }
-  }
+  // v39: 영역전개 횟수는 카드 사용이 아니라 데미지 발생 시 차감됩니다.
   updateBattle();
   if(battle.turn==='enemy'){
     msg('적이 카드를 고르는 중...');
@@ -870,6 +874,8 @@ const RELICS={
   pharaohScroll:{name:'고대 파라오의 두루마기',price:850,desc:'투사 계열 공격의 데미지가 10% 증가합니다.',icon:'📜'}
 };
 const RELIC_ORDER=Object.keys(RELICS);
+RELICS.revengeBlade={name:'복수의 칼날',price:950,desc:'체력이 깎일수록 데미지가 증가합니다. 처음에는 크게 오르고, 체력이 많이 깎일수록 증가율이 점점 낮아집니다.',icon:'⚔️'};
+if(!RELIC_ORDER.includes('revengeBlade'))RELIC_ORDER.push('revengeBlade');
 function renderBattleRelics(){const bar=$('battleRelicBar');if(!bar)return;if(!battle||!battle.player){bar.style.display='none';return}bar.style.display='flex';const relics=(battle.player.relics||[]).filter(id=>RELICS[id]);if(!relics.length){bar.innerHTML='<span class="battleRelicTitle">장착 유물 없음</span>';return}bar.innerHTML='<span class="battleRelicTitle">내 유물</span>'+relics.map(id=>{const r=RELICS[id];const used=battle.player.usedRelics&&battle.player.usedRelics[id];return `<span class="battleRelicChip ${used?'used':''}" title="${r.desc}"><b>${r.icon}</b>${r.name}${used?' · 사용됨':''}</span>`}).join('')}
 const _origUpdateBattleForRelics=updateBattle;updateBattle=function(){_origUpdateBattleForRelics();renderBattleRelics();};
 const PACK_OFFERS=[
@@ -1030,9 +1036,244 @@ const _origOpenPackBtn=$('openPackBtn').onclick;$('openPackBtn').onclick=()=>{co
 const _origStartBattle=startBattle;startBattle=function(){_origStartBattle();const p=me();ensureProgressFields();if(!battle)return;battle.player.relics=(p.equippedRelics||[]).filter(Boolean);battle.player.usedRelics={};battle.player.extraRevives=battle.player.relics.includes('phoenixRing')?1:0;battle.player.domainCooldown=Number(battle.player.domainCooldown)||0;battle.player.domainCooldownSlot=Number.isInteger(battle.player.domainCooldownSlot)?battle.player.domainCooldownSlot:null;const playerHasRelic=ownedRelicCount(p)>0;let enemyRelics=[];if(playerHasRelic){const cnt=Math.floor(Math.random()*3);const pool=[...RELIC_ORDER].sort(()=>Math.random()-.5);enemyRelics=pool.slice(0,cnt)}battle.enemy.relics=enemyRelics;battle.enemy.usedRelics={};battle.enemy.extraRevives=enemyRelics.includes('phoenixRing')?1:0;battle.enemy.domainCooldown=Number(battle.enemy.domainCooldown)||0;battle.enemy.domainCooldownSlot=Number.isInteger(battle.enemy.domainCooldownSlot)?battle.enemy.domainCooldownSlot:null;renderBattleCards();updateBattle();};$('startBattleBtn').onclick=startBattle;
 function sideHasRelic(side,id){return !!(battle&&battle[side]&&Array.isArray(battle[side].relics)&&battle[side].relics.includes(id))}
 const _origUseCard=useCard;useCard=async function(actor,slot){const id=battle?.[actor]?.deck?.[slot];const c=CARDS[id];const original=c?c.cd:null;if(c&&id!=='revive'&&sideHasRelic(actor,'devilSword'))c.cd=Math.max(1,(Number(c.cd)||1)-1);try{return await _origUseCard(actor,slot)}finally{if(c&&original!==null)c.cd=original}};
-const _origDoDamage=doDamage;doDamage=async function(actor,defenderSide,dmg,type,fromSummon=false,percent=false){let scaled=Math.max(1,Math.round(dmg));if(sideHasRelic(actor,'angelHalo'))scaled=Math.round(scaled*1.05);if(sideHasRelic(defenderSide,'angelHalo'))scaled=Math.round(scaled*0.95);if(sideHasRelic(actor,'pharaohScroll')&&PROJECTILE_TYPES.includes(type))scaled=Math.round(scaled*1.10);await _origDoDamage(actor,defenderSide,scaled,type,fromSummon,percent);const defender=battle&&battle[defenderSide];if(defender&&defender.hp<=0&&defender.extraRevives>0&&!battle.ended){defender.extraRevives--;defender.usedRelics=defender.usedRelics||{};defender.usedRelics.phoenixRing=true;renderBattleRelics();await phoenixRevive(defenderSide);renderBattleRelics()}};
+const _origDoDamage=doDamage;doDamage=async function(actor,defenderSide,dmg,type,fromSummon=false,percent=false){let scaled=Math.max(1,Math.round(dmg));if(sideHasRelic(actor,'angelHalo'))scaled=Math.round(scaled*1.05);if(sideHasRelic(defenderSide,'angelHalo'))scaled=Math.round(scaled*0.95);if(sideHasRelic(actor,'pharaohScroll')&&PROJECTILE_TYPES.includes(type))scaled=Math.round(scaled*1.10);if(sideHasRelic(actor,'revengeBlade')&&battle&&battle[actor]){const u=battle[actor];const lostPct=clamp((1-(u.hp/u.max))*100,0,100);const bonus=0.10*(Math.log1p(lostPct)/Math.log(2));scaled=Math.max(1,Math.round(scaled*(1+bonus)))}await _origDoDamage(actor,defenderSide,scaled,type,fromSummon,percent);const defender=battle&&battle[defenderSide];if(defender&&defender.hp<=0&&defender.extraRevives>0&&!battle.ended){defender.extraRevives--;defender.usedRelics=defender.usedRelics||{};defender.usedRelics.phoenixRing=true;renderBattleRelics();await phoenixRevive(defenderSide);renderBattleRelics()}};
 
 let shopTimerInt=null;function startShopTimer(){if(shopTimerInt)clearInterval(shopTimerInt);shopTimerInt=setInterval(()=>{if(!$('shopModal')||!$('shopModal').classList.contains('active'))return;const p=me();if(!p)return;syncFreeCoinState(p);updateShopSummary();if(selectedShopCategory==='free'){const timer=document.querySelector('.shopTimer');if(timer)timer.textContent=p.freeCoinReady>=1?'준비 완료':formatMs(freeCoinRemainMs(p));const btn=$('claimFreeCoinBtn');if(btn)btn.disabled=!(p.freeCoinReady>=1);}},1000)}startShopTimer();
+
+
+/* === v39 balance/progress/dev patches === */
+function rankPackCountForReward(r){
+  if(!r||!r.hasBadge)return 0;
+  if(r.name==='브론즈')return 1;
+  if(r.name==='실버'||r.name==='골드')return 3;
+  if(r.name==='어나더레벨')return 50;
+  const group=Math.floor(Math.max(0,(Number(r.index)||0)-3)/3);
+  return [5,7,15,50][group%4];
+}
+function rewardLabelText(r){return r.packCount?`카드팩 ${r.packCount}개`:`${(Number(r.coins)||0).toLocaleString('ko-KR')} 코인`}
+function rewardIconText(r){return r.packCount?'🎴':'🪙'}
+const _v39CoinForReward=coinForReward;
+buildRewards=function(limit=FINAL_TROPHY){
+  const max=Math.min(FINAL_TROPHY,Math.max(1,limit));
+  let prev=0;
+  return rewardTargets().filter(t=>t<=max).map(target=>{
+    const rank=RANKS.find(r=>r.target===target);
+    const coins=rank?0:_v39CoinForReward(target,prev);
+    prev=target;
+    if(rank){const obj={...rank,target,coins:0,hasBadge:true};obj.packCount=rankPackCountForReward(obj);return obj}
+    return {target,coins,hasBadge:false,name:'중간 보상',level:0,index:-1,packCount:0};
+  });
+};
+openProgress=function(keepScroll=null){
+  if(typeof keepScroll!=='number')keepScroll=null;
+  const p=me();ensureProgressFields();const rewards=buildRewards(FINAL_TROPHY);const next=nextRewardTarget(p.trophies),rank=rankForTrophies(p.trophies);
+  $('progressModalSummary').innerHTML=`<div>현재 🏆 ${p.trophies.toLocaleString('ko-KR')} / 다음 ${next.toLocaleString('ko-KR')}</div><div class="rankInline">${badgeSvg(rank)}<span>${rank.name}${rank.name==='어나더레벨'?rank.level:rank.level}</span> · 🪙 ${p.coins.toLocaleString('ko-KR')}</div>`;
+  const road=$('rewardList');road.innerHTML='<div class="roadLine"></div><div id="roadLineFill" class="roadLineFill"></div><div id="roadCurrentBadge" class="roadCurrentBadge">🏆 '+p.trophies.toLocaleString('ko-KR')+'</div>';
+  const spacing=190,left=180,totalWidth=Math.max(1100,left*2+rewards.length*spacing);road.style.width=totalWidth+'px';
+  let filledIndex=rewards.findIndex(r=>r.target>=p.trophies);if(filledIndex<0)filledIndex=rewards.length-1;
+  const prev=rewards[filledIndex-1]?.target||0,cur=rewards[filledIndex]?.target||FINAL_TROPHY;const ratio=clamp((p.trophies-prev)/(cur-prev||1),0,1);const fillPx=(filledIndex*spacing)+(spacing*ratio);
+  $('roadLineFill').style.width=Math.max(0,fillPx)+'px';$('roadCurrentBadge').style.left=(left+fillPx)+'px';
+  rewards.forEach((r,i)=>{const targetKey=String(r.target);const can=p.trophies>=r.target&&!p.claimedRewards[targetKey];const claimed=!!p.claimedRewards[targetKey];const node=document.createElement('div');node.className='roadNode '+(i%2?'down ':'')+(can?'claimable ':'')+(claimed?'claimed':'');node.style.left=(left+i*spacing)+'px';const rankLabel=r.hasBadge?(r.name==='어나더레벨'?`${r.name}${r.level}`:`${r.name}${r.level}`):'중간 보상';const badgePart=r.hasBadge?badgeSvg(r):'<div class="coinMidBadge">🪙</div>';node.innerHTML=`${i%2?`<div class="roadTrophy">🏆 ${r.target.toLocaleString('ko-KR')}</div>`:''}<div class="roadBadgeWrap">${badgePart}</div><div class="roadRewardCard ${r.hasBadge?'rankReward':''}"><div class="rankName">${rankLabel}</div><div class="roadRewardIcon">${rewardIconText(r)}</div><div class="roadRewardAmount">${rewardLabelText(r)}</div><button class="roadClaimBtn" data-target="${r.target}" ${can?'':'disabled'} onpointerdown="event.preventDefault();event.stopPropagation();claimProgressReward(this.dataset.target)" onclick="event.preventDefault();event.stopPropagation();claimProgressReward(this.dataset.target)">${claimed?'획득완료':can?'받기':'미달성'}</button></div>${i%2?'':`<div class="roadTrophy">🏆 ${r.target.toLocaleString('ko-KR')}</div>`}`;road.appendChild(node)});
+  $('progressModal').classList.add('active');setTimeout(()=>{const vp=$('progressRoadViewport');const targetLeft=keepScroll!==null?keepScroll:Math.max(0,(left+fillPx)-vp.clientWidth/2);vp.scrollLeft=targetLeft;enableRoadDrag(vp)},30)
+};
+claimProgressReward=function(target){
+  const p=me();if(!p)return;ensureProgressFields();const vp=$('progressRoadViewport');const keepScroll=vp?vp.scrollLeft:0;target=String(target);const reward=buildRewards(FINAL_TROPHY).find(r=>String(r.target)===target);if(!reward)return toast('보상을 찾을 수 없습니다.');if(p.trophies<reward.target)return toast('아직 달성하지 못했습니다.');if(p.claimedRewards[target])return toast('이미 받은 보상입니다.');
+  if(reward.packCount){p.claimedRewards[target]=true;saveAll();renderProgress();$('progressModal').classList.remove('active');openPackInventoryModal(reward.packCount);toast(`카드팩 ${reward.packCount}개 획득!`);return}
+  openCoinReward({title:'진척도 보상',amount:Number(reward.coins)||0,desc:'클릭하면 코인을 받습니다.',onConfirm:()=>{p.claimedRewards[target]=true;p.coins=(Number(p.coins)||0)+(Number(reward.coins)||0);saveAll();renderProgress();openProgress(keepScroll);renderShop();}});
+};
+function weightedPickCard(pool){
+  if(!pool.length)return null;
+  let sum=0;const weighted=pool.map((id,idx)=>{let w=1/Math.pow(idx+1,1.35);const char=Array.from(id).reduce((a,ch)=>a+ch.charCodeAt(0),0);w*=0.58+((char%97)/97)*1.25;if(['hit','sword','bow','axe','dagger','fire','wind','ice'].includes(id))w*=1.35;if(['revive','domain','diamondArmor','prismKnight','prismCrystal','spiritBomb'].includes(id))w*=0.38;sum+=w;return{id,w}});let r=Math.random()*sum;for(const item of weighted){r-=item.w;if(r<=0)return item.id}return weighted[weighted.length-1].id;
+}
+chooseGrade=function(source='store'){
+  const p=me();const lucky=source==='win'&&(p.equippedRelics||[]).includes('luckyCup');
+  const odds=lucky?[{g:'일반',w:45},{g:'희귀',w:31},{g:'초희귀',w:14},{g:'영웅',w:7},{g:'신화',w:2.5},{g:'전설',w:.5}]:source==='win'?[{g:'일반',w:62},{g:'희귀',w:25},{g:'초희귀',w:9},{g:'영웅',w:3},{g:'신화',w:.85},{g:'전설',w:.15}]:[{g:'일반',w:72},{g:'희귀',w:20},{g:'초희귀',w:5.7},{g:'영웅',w:1.8},{g:'신화',w:.45},{g:'전설',w:.05}];
+  const sum=odds.reduce((a,b)=>a+b.w,0);let r=Math.random()*sum;for(const o of odds){if((r-=o.w)<=0)return o.g}return '일반';
+};
+drawPackReward=function(source='store'){
+  const p=me();ensureProgressFields();const availableRelics=RELIC_ORDER.filter(id=>!relicOwned(id,p));if(availableRelics.length&&Math.random()<0.01){const rid=availableRelics[Math.floor(Math.random()*availableRelics.length)];p.ownedRelics.push(rid);return {kind:'relic',id:rid,data:RELICS[rid]}}
+  const grade=chooseGrade(source);const pool=ORDER.filter(id=>CARDS[id]&&CARDS[id].grade===grade);const id=weightedPickCard(pool)||pool[Math.floor(Math.random()*pool.length)];const maxCnt=levelCountFromLv(10);p.owned[id]=Math.min(maxCnt,(p.owned[id]||0)+1);return {kind:'card',id,data:CARDS[id],count:p.owned[id]};
+};
+function setAllCards(p,lv){p.owned=p.owned||{};const cnt=levelCountFromLv(lv);ORDER.forEach(id=>{if(CARDS[id])p.owned[id]=cnt})}
+function clearRelics(p){p.ownedRelics=[];p.equippedRelics=[null,null]}
+function setAllProgress(p,claimed=true){p.trophies=FINAL_TROPHY;p.claimedRewards={};if(claimed)rewardTargets().forEach(t=>p.claimedRewards[String(t)]=true)}
+function applyDevProfile(mode){
+  const names={'!':'개발자!','~':'개발자~','?':'개발자?','+':'개발자+','-':'개발자-'};enterWith(names[mode]);const p=me();ensureProgressFields();p.tutorial=false;p.deck=['hit',null,null,null,null,null];p.claimedRewards=p.claimedRewards||{};
+  if(mode==='!'){setAllCards(p,10);p.ownedRelics=[...RELIC_ORDER];p.equippedRelics=p.equippedRelics||[null,null];p.coins=999999;setAllProgress(p,true)}
+  else if(mode==='~'){setAllCards(p,10);p.ownedRelics=[...RELIC_ORDER];p.equippedRelics=p.equippedRelics||[null,null];p.coins=999999;p.trophies=0;p.claimedRewards={}}
+  else if(mode==='?'){setAllCards(p,10);clearRelics(p);p.coins=999999;p.trophies=0;p.claimedRewards={}}
+  else if(mode==='+'){setAllCards(p,1);clearRelics(p);p.coins=999999;p.trophies=0;p.claimedRewards={}}
+  else if(mode==='-'){setAllCards(p,1);clearRelics(p);p.coins=0;p.trophies=0;p.claimedRewards={}}
+  saveAll();showMain();}
+$('devBtn').onclick=()=>{const v=$('devInput').value;if(v==='2012424!')applyDevProfile('!');else if(v==='2012424~')applyDevProfile('~');else if(v==='2012424?')applyDevProfile('?');else if(v==='2012424+')applyDevProfile('+');else if(v==='2012424-')applyDevProfile('-');else toast('비밀번호가 틀렸습니다.')};
+const _v39EnsureDeveloperPerks=ensureDeveloperPerks;ensureDeveloperPerks=function(){_v39EnsureDeveloperPerks();const p=me();if(!p)return;if(nick==='개발자!'){setAllCards(p,10);p.ownedRelics=[...RELIC_ORDER];p.coins=999999;setAllProgress(p,true)}else if(nick==='개발자~'){setAllCards(p,10);p.ownedRelics=[...RELIC_ORDER];p.coins=999999;if(!Number(p.trophies))p.trophies=0}else if(nick==='개발자?'){setAllCards(p,10);clearRelics(p);p.coins=999999;if(!Number(p.trophies))p.trophies=0}else if(nick==='개발자+'){setAllCards(p,1);clearRelics(p);p.coins=999999;if(!Number(p.trophies))p.trophies=0}else if(nick==='개발자-'){setAllCards(p,1);clearRelics(p);p.coins=0;p.trophies=0;p.claimedRewards={}}saveAll()};
+
+
+/* === v41 fixes: free items, progress packs, domain, dev, relic purchase === */
+(function(){
+const style=document.createElement('style');
+style.textContent=`
+.shopChip.ready{background:rgba(255,214,74,.22)!important;border-color:rgba(255,225,100,.9)!important;box-shadow:0 0 22px rgba(255,213,64,.75)!important;color:#fff4b5!important}
+.freeGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:14px}.freeItemCard{border-radius:24px;padding:18px;background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.07));border:1px solid rgba(255,255,255,.18);box-shadow:0 14px 34px rgba(0,0,0,.22)}.freeItemCard.ready{background:linear-gradient(160deg,rgba(255,230,90,.28),rgba(255,255,255,.08));border-color:rgba(255,230,90,.75);box-shadow:0 0 24px rgba(255,215,70,.32)}.freeItemIcon{font-size:58px;text-align:center}.freeItemTitle{font-size:23px;font-weight:1000;margin-top:8px}.freeItemTimer{font-size:28px;font-weight:1000;color:#ffdf73;margin:10px 0}.freeItemDesc{font-size:13px;color:#e6edff;line-height:1.45;margin-bottom:10px}.freeItemCard .btn{width:100%}
+`;
+document.head.appendChild(style);
+
+CARDS.armor.desc='2턴 동안 받는 데미지를 30% 줄입니다.';
+CARDS.domain.desc='영역전개를 8회 전개합니다. 데미지를 주거나 받을 때마다 1회 줄어들며, 효과 종료 후 쿨타임 8턴입니다. 적이 영역전개중일시 상쇄합니다.';
+CARDS.domain.cd=8;
+
+const _v41BaseEnsure=ensureProgressFields;
+ensureProgressFields=function(){
+  _v41BaseEnsure();
+  const p=me(); if(!p)return;
+  if(!p.freeInitV41){p.freeCoinReady=1;p.freePackReady=1;p.freeCoinLast=Date.now();p.freePackLast=Date.now();p.freeInitV41=true;}
+  p.freeCoinReady=Math.max(0,Math.min(1,Number(p.freeCoinReady)||0));
+  p.freePackReady=Math.max(0,Math.min(1,Number(p.freePackReady)||0));
+  p.freeCoinLast=Number(p.freeCoinLast)||Date.now();
+  p.freePackLast=Number(p.freePackLast)||Date.now();
+  p.ownedRelics=Array.isArray(p.ownedRelics)?p.ownedRelics.filter(id=>RELICS[id]):[];
+  p.equippedRelics=Array.isArray(p.equippedRelics)?p.equippedRelics.slice(0,2):[null,null];
+  while(p.equippedRelics.length<2)p.equippedRelics.push(null);
+};
+function syncFreeStateV41(p){
+  if(!p)return; ensureProgressFields(); const now=Date.now();
+  if(p.freeCoinReady<1 && now-p.freeCoinLast>=600000){p.freeCoinReady=1;p.freeCoinLast=now;saveAll();}
+  if(p.freePackReady<1 && now-p.freePackLast>=3600000){p.freePackReady=1;p.freePackLast=now;saveAll();}
+}
+function remainFree(p,key,gap){syncFreeStateV41(p); const last=Number(p[key])||Date.now(); return Math.max(0,gap-(Date.now()-last));}
+function updateFreeShopGlow(){const p=me(); if(!p||!$('shopChip'))return; syncFreeStateV41(p); $('shopChip').classList.toggle('ready',p.freeCoinReady>=1||p.freePackReady>=1);}
+const _v41RenderProgress=renderProgress;
+renderProgress=function(){_v41RenderProgress();updateFreeShopGlow();};
+const _v41ShowMainNoScreen=typeof showMainNoScreen==='function'?showMainNoScreen:null;
+showMainNoScreen=function(){ensureProgressFields();renderProgress();renderDeck();renderRelicSlots();updateFreeShopGlow();};
+
+const _v41RenderShop=renderShop;
+renderShop=function(){
+  const p=me(); if(!p)return; ensureProgressFields(); syncFreeStateV41(p); updateFreeShopGlow();
+  if(selectedShopCategory!=='free'){_v41RenderShop(); updateFreeShopGlow(); return;}
+  updateShopSummary();
+  const box=$('shopContent');
+  box.innerHTML=`<div class="shopHeroCard"><div class="shopHeroTitle">무료 아이템</div><div class="shopHeroSub">무료 아이템은 처음 들어오면 1개씩 준비되어 있고, 받은 뒤부터 타이머가 시작됩니다. 준비된 보상이 있으면 상점 버튼이 노란색으로 빛납니다.</div><div class="freeGrid"><div class="freeItemCard ${p.freeCoinReady>=1?'ready':''}"><div class="freeItemIcon">🪙</div><div class="freeItemTitle">무료 코인</div><div class="freeItemDesc">10분마다 5코인 획득. 최대 1개 중첩.</div><div class="freeItemTimer">${p.freeCoinReady>=1?'준비 완료':formatMs(remainFree(p,'freeCoinLast',600000))}</div><button id="claimFreeCoinBtn" class="btn" ${p.freeCoinReady>=1?'':'disabled'}>받기</button></div><div class="freeItemCard ${p.freePackReady>=1?'ready':''}"><div class="freeItemIcon">🎴</div><div class="freeItemTitle">무료 카드팩</div><div class="freeItemDesc">1시간마다 카드팩 1개 획득. 상점 카드팩과 같은 방식으로 엽니다.</div><div class="freeItemTimer">${p.freePackReady>=1?'준비 완료':formatMs(remainFree(p,'freePackLast',3600000))}</div><button id="claimFreePackBtn" class="btn" ${p.freePackReady>=1?'':'disabled'}>받기</button></div></div></div>`;
+  $('claimFreeCoinBtn').onclick=()=>{if(p.freeCoinReady<1)return toast('아직 무료 코인이 준비되지 않았습니다.');openCoinReward({title:'무료 코인',amount:5,desc:'화면을 누르면 무료 코인을 획득합니다.',onConfirm:()=>{p.coins+=5;p.freeCoinReady=0;p.freeCoinLast=Date.now();saveAll();renderProgress();renderShop();showMainNoScreen();}})};
+  $('claimFreePackBtn').onclick=()=>{if(p.freePackReady<1)return toast('아직 무료 카드팩이 준비되지 않았습니다.');p.freePackReady=0;p.freePackLast=Date.now();saveAll();renderProgress();renderShop();openPackInventoryModal(1);};
+};
+
+function rankPackCountForRewardV41(r){
+  if(!r||!r.hasBadge)return 0;
+  if(r.name==='브론즈')return 1;
+  if(r.name==='실버'||r.name==='골드')return 3;
+  if(r.name==='어나더레벨')return 50;
+  const idx=Number(r.index)||0;
+  if(idx>=3&&idx<=5)return 5;      // 플래티넘, 에메랄드, 다이아
+  if(idx>=6&&idx<=8)return 7;      // 레드다이아, 신화, 전설
+  if(idx>=9&&idx<=11)return 15;    // 마스터, 그랜드마스터, 프로
+  return 50;                       // 챌린저 이후 전부 50개 유지
+}
+rankPackCountForReward=rankPackCountForRewardV41;
+buildRewards=function(limit=FINAL_TROPHY){
+  const max=Math.min(FINAL_TROPHY,Math.max(1,limit)); let prev=0;
+  return rewardTargets().filter(t=>t<=max).map(target=>{
+    const rank=RANKS.find(r=>r.target===target); const coins=rank?0:_v39CoinForReward(target,prev); prev=target;
+    if(rank){const obj={...rank,target,coins:0,hasBadge:true};obj.packCount=rankPackCountForRewardV41(obj);return obj}
+    return {target,coins,hasBadge:false,name:'중간 보상',level:0,index:-1,packCount:0};
+  });
+};
+
+const _v41BuyRelic=buyRelic;
+buyRelic=function(id){
+  const p=me();ensureProgressFields();const r=RELICS[id];if(!r)return toast('유물을 찾을 수 없습니다.');
+  if(relicOwned(id,p))return toast('이미 획득한 유물입니다.');
+  if(p.coins<r.price)return toast('코인이 부족합니다.');
+  p.coins-=r.price;
+  p.ownedRelics=p.ownedRelics||[];
+  if(!p.ownedRelics.includes(id))p.ownedRelics.push(id);
+  saveAll();renderProgress();renderRelicSlots();renderShop();toast(`${r.name} 획득!`);
+};
+let lastRelicBuyClick=0;
+function handleRelicBuyEvent(e){
+  const b=e.target.closest&&e.target.closest('.buyRelicBtn');if(!b)return;
+  e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+  const now=Date.now();if(now-lastRelicBuyClick<250)return;lastRelicBuyClick=now;
+  buyRelic(b.dataset.id);
+}
+document.addEventListener('click',handleRelicBuyEvent,true);
+document.addEventListener('pointerup',handleRelicBuyEvent,true);
+if($('shopContent')){
+  $('shopContent').addEventListener('click',handleRelicBuyEvent,true);
+  $('shopContent').addEventListener('pointerup',handleRelicBuyEvent,true);
+}
+
+const _v41DrawPackReward=drawPackReward;
+drawPackReward=function(source='store'){
+  const reward=_v41DrawPackReward(source); const p=me(); ensureProgressFields();
+  if(reward&&reward.kind==='relic'&&reward.id&&!p.ownedRelics.includes(reward.id))p.ownedRelics.push(reward.id);
+  saveAll();
+  setTimeout(()=>{renderRelicSlots();if($('shopModal')&&$('shopModal').classList.contains('active'))renderShop();},0);
+  return reward;
+};
+
+function deckAvgLevelV43(deck,owner){
+  const ids=(deck||[]).filter(id=>CARDS[id]);
+  if(!ids.length)return 1;
+  return ids.reduce((sum,id)=>sum+cardLevel(id,owner),0)/ids.length;
+}
+calcSharedMaxHp=function(playerDeck,playerOwner,enemyDeck,enemyOwner){
+  if(isOnlyHit(playerDeck)&&isOnlyHit(enemyDeck))return 30;
+  const pPower=deckPower(playerDeck,playerOwner),ePower=deckPower(enemyDeck,enemyOwner);
+  const pBurst=deckBurstDamage(playerDeck,playerOwner),eBurst=deckBurstDamage(enemyDeck,enemyOwner);
+  const cardCount=Math.max(countReal(playerDeck),countReal(enemyDeck));
+  const maxRank=Math.max(maxDeckRank(playerDeck),maxDeckRank(enemyDeck));
+  const avgLv=(deckAvgLevelV43(playerDeck,playerOwner)+deckAvgLevelV43(enemyDeck,enemyOwner))/2;
+  let hp=90+Math.max(pPower,ePower)*1.25+cardCount*22+avgLv*35;
+  hp=Math.max(hp,Math.max(pBurst,eBurst)*3.8+180);
+  if(maxRank>=5)hp=Math.max(hp,Math.max(pBurst,eBurst)*6.0+650);
+  if(maxRank>=6)hp=Math.max(hp,Math.max(pBurst,eBurst)*7.4+950);
+  if(avgLv>=9)hp*=1.25;
+  return Math.round(clamp(hp,70,8000));
+};
+
+// 영역전개: 8회 유지, 상쇄되면 양쪽 모두 8턴 쿨타임. 기존 함수가 5회로 생성한 뒤 보정.
+const _v41UseCard=useCard;
+useCard=async function(actor,slot){
+  const id=battle?.[actor]?.deck?.[slot];
+  const beforeDomain=battle?.domain?{...battle.domain}:null;
+  const res=await _v41UseCard(actor,slot);
+  if(id==='domain'){
+    if(battle&&battle.domain&&battle.domain.side===actor){battle.domain.turns=8;battle.domain.coolAfter=8;}
+    const u=battle&&battle[actor]; if(u&&Number.isInteger(slot))u.domainCooldownSlot=slot;
+    updateBattle();
+  }
+  return res;
+};
+const _v41ConsumeDomain=consumeDomainOnDamage;
+consumeDomainOnDamage=function(){
+  if(!battle||!battle.domain)return;
+  const d=battle.domain;
+  d.turns=Math.max(0,(Number(d.turns)||0)-1);
+  if(d.turns<=0){
+    if(Number.isInteger(d.coolSlot)&&battle[d.side]){battle[d.side].domainCooldown=8;battle[d.side].domainCooldownSlot=d.coolSlot;battle[d.side].cool[d.coolSlot]=Math.max(battle[d.side].cool[d.coolSlot]||0,8)}
+    battle.domain=null;
+  }
+};
+
+function setAllProgressV41(p){p.trophies=FINAL_TROPHY;p.claimedRewards={};}
+applyDevProfile=function(mode){
+  const names={'!':'개발자!','~':'개발자~','?':'개발자?','+':'개발자+','-':'개발자-'};
+  enterWith(names[mode]);const p=me();ensureProgressFields();p.tutorial=false;p.deck=['hit',null,null,null,null,null];p.claimedRewards={};
+  if(mode==='!'){setAllCards(p,10);p.ownedRelics=[...RELIC_ORDER];p.equippedRelics=p.equippedRelics||[null,null];p.coins=999999;setAllProgressV41(p)}
+  else if(mode==='~'){setAllCards(p,10);p.ownedRelics=[...RELIC_ORDER];p.equippedRelics=p.equippedRelics||[null,null];p.coins=999999;p.trophies=0;p.claimedRewards={}}
+  else if(mode==='?'){setAllCards(p,10);clearRelics(p);p.coins=999999;p.trophies=0;p.claimedRewards={}}
+  else if(mode==='+'){setAllCards(p,1);clearRelics(p);p.coins=999999;p.trophies=0;p.claimedRewards={}}
+  else if(mode==='-'){setAllCards(p,1);clearRelics(p);p.coins=0;p.trophies=0;p.claimedRewards={}}
+  p.freeInitV41=true;p.freeCoinReady=1;p.freePackReady=1;p.freeCoinLast=Date.now();p.freePackLast=Date.now();
+  saveAll();showMain();
+};
+$('devBtn').onclick=()=>{const v=$('devInput').value;if(v==='2012424!')applyDevProfile('!');else if(v==='2012424~')applyDevProfile('~');else if(v==='2012424?')applyDevProfile('?');else if(v==='2012424+')applyDevProfile('+');else if(v==='2012424-')applyDevProfile('-');else toast('비밀번호가 틀렸습니다.')};
+ensureDeveloperPerks=function(){const p=me();if(!p)return;ensureProgressFields();if(nick==='개발자!'){setAllCards(p,10);p.ownedRelics=[...RELIC_ORDER];p.coins=999999;p.trophies=FINAL_TROPHY;p.claimedRewards=p.claimedRewards||{}}else if(nick==='개발자~'){setAllCards(p,10);p.ownedRelics=[...RELIC_ORDER];p.coins=999999}else if(nick==='개발자?'){setAllCards(p,10);clearRelics(p);p.coins=999999}else if(nick==='개발자+'){setAllCards(p,1);clearRelics(p);p.coins=999999}else if(nick==='개발자-'){setAllCards(p,1);clearRelics(p);p.coins=0;p.trophies=0;p.claimedRewards={}}saveAll();};
+
+updateFreeShopGlow();
+})();
+
 })();
 save=loadAll();
 </script>
